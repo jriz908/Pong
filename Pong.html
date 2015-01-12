@@ -1,0 +1,215 @@
+
+<html>
+
+<head>
+<title>Pong</title>
+
+
+<script type="text/javascript" src="https://d14to6y4nub5k1.cloudfront.net/local/jquery.min.js"></script>
+<script type="text/javascript" src="https://d14to6y4nub5k1.cloudfront.net/lib/codehs/library_live.js"></script>
+
+
+<style>
+canvas{
+    border: 1px solid black;
+}
+</style>
+
+</head>
+
+<body>
+<h1>Pong</h1>
+
+<div id="user-code" style="display:none;">
+/* Constants for ball and paddle */
+var PADDLE_WIDTH = 10;
+var PADDLE_HEIGHT = 60;
+var PADDLE_OFFSET = 10;
+
+var BALL_RADIUS = 5;
+
+var cx = getWidth()/2;
+var cy = getHeight()/2;
+var ball;
+var speed = 5;
+var dx = -speed;
+var dy = speed;
+
+var player;
+var AI;
+var scoreText;
+var line;
+var pScore = 0;
+var AIScore = 0;
+
+
+
+
+function start(){
+    setBackgroundColor(Color.BLACK);
+    scoreText = new Text(pScore + "  " + AIScore, "30pt Arial");
+    scoreText.setColor(Color.white);
+    scoreText.setPosition(cx - scoreText.getWidth()/2, getHeight() - 20)
+    add(scoreText);
+
+    
+	ball = new Circle(BALL_RADIUS);
+	ball.setColor(Color.white);
+	ball.setPosition(cx, cy);
+    add(ball);
+	
+	player = new Rectangle(PADDLE_WIDTH, PADDLE_HEIGHT);
+	player.setColor(Color.white);
+	player.setPosition(5, getHeight() - PADDLE_OFFSET - PADDLE_HEIGHT);
+	add(player);
+	
+	AI = new Rectangle(PADDLE_WIDTH, PADDLE_HEIGHT);
+	AI.setColor(Color.white);
+	AI.setPosition(getWidth()-5 - PADDLE_WIDTH, getHeight() - PADDLE_OFFSET - PADDLE_HEIGHT);
+	add(AI);
+	
+	line = new Line(cx,0,cx,getHeight());
+	line.setColor(Color.white);
+	add(line);
+
+
+	setTimer(moveBall, 10);
+	mouseMoveMethod(movePaddle);
+	
+}
+
+function movePaddle(e){
+    player.setPosition(5, e.getY() - PADDLE_HEIGHT/2);
+}
+
+
+
+function moveBall(){
+    if(Randomizer.nextInt(1,10) < 10){
+        if(AI.getY() < ball.getY() && AI.getY() < getHeight() - PADDLE_HEIGHT){
+        
+       
+            AI.move(0,speed);
+        
+        
+        }else if(AI.getY() > 0){
+        
+        
+            AI.move(0,-speed);
+        
+        
+        }
+    }
+
+    checkWalls();
+    checkCollisions();
+    ball.move(dx, dy);
+}
+
+
+function checkCollisions(){
+    
+    var element = null;
+    
+    //checking all 4 corners
+    if(getElementAt(ball.getX() - BALL_RADIUS, ball.getY()) != null){
+        element = getElementAt(ball.getX() - BALL_RADIUS, ball.getY());
+    }
+    if(getElementAt(ball.getX() + BALL_RADIUS, ball.getY()) != null){
+        element = getElementAt(ball.getX() + BALL_RADIUS, ball.getY())
+    } 
+    //if(getElementAt(ball.getX(), ball.getY() - BALL_RADIUS) != null){
+   //     element = getElementAt(ball.getX(), ball.getY() - BALL_RADIUS)
+   // }
+    //if(getElementAt(ball.getX(), ball.getY() + BALL_RADIUS) != null){
+   //     element = getElementAt(ball.getX(), ball.getY() + BALL_RADIUS)
+   // }
+    
+    if(element != null && element != scoreText){
+        dx = -dx;
+    }
+    
+    if(element == player){
+        if(ball.getY() > player.getY() + PADDLE_HEIGHT/2){
+            dy = speed;
+        }else{
+            dy = -speed;
+        }
+    }
+    
+    if(element == AI){
+        if(ball.getY() > AI.getY() + PADDLE_HEIGHT/2){
+            dy = speed;
+        }else{
+            dy = -speed;
+        }
+    }
+    
+    
+    
+   
+}
+
+function checkWalls(){
+    if(ball.getX() + BALL_RADIUS == 0){
+        AIScore++;
+        resetBall();
+    }
+    
+    if(ball.getX() - BALL_RADIUS == getWidth()){
+        pScore++;
+        resetBall();
+    }
+    
+    if(ball.getY() - BALL_RADIUS == 0 || ball.getY() + BALL_RADIUS  == getHeight()){
+        dy = -dy;
+    }
+    
+    
+}
+
+function resetBall(){
+    scoreText.setText(pScore + "  " + AIScore, "30pt Arial");
+    
+    if(AIScore == 7){
+        removeAll();
+        println("AI wins!");
+    }else if(pScore == 7){
+        removeAll();
+        println("You win!");
+    }else{
+        ball.setPosition(cx,cy);
+        
+        if(Randomizer.nextBoolean()){
+            dx = speed;
+        }else{
+            dx = -speed;
+        }
+        
+        dy = 0;
+        
+    }
+    
+    
+    
+}
+
+
+</div>
+
+<canvas 
+width="400"
+height="500"
+class="codehs-editor-canvas"></canvas>
+
+<script>
+var g = new CodeHSGraphics({
+    canvas: $('.codehs-editor-canvas')
+});
+// run test # here.
+g.runCode($("#user-code").text());
+
+</script>
+
+</body>
+</html>
